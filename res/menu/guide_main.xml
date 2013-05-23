@@ -7,7 +7,7 @@
         android:title="@string/action_settings"/>
 
    	<item 
-       	android:id="@+id/button_enter"
+       	android:id="@+id/enter_map"
    		android:title="@string/enter_map_view"
        	android:showAsAction="ifRoom"
     	android:gravity="center"/>

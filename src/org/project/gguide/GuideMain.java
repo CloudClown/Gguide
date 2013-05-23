@@ -1,9 +1,11 @@
 package org.project.gguide;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
@@ -33,5 +35,12 @@ public class GuideMain extends Activity {
         return true;
     }
 	
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	if (item.getItemId() == R.id.enter_map) {
+			Intent intent = new Intent(this, MapGuideView.class);
+			startActivity(intent);
+		}
+    	return false;
+    }
 }
 
