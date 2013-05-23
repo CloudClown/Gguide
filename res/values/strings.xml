@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Gguide</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_map_guide_view">MapGuideView</string>
+    <string name="enter_map_view">ENTER MAP GUIDE</string>
+    <string name="enter_main">HOME</string>
+</resources>
