@@ -14,7 +14,6 @@ public class GuideMain extends Activity {
 	
     private FrameLayout layout;
     private CameraView cameraView;
-	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Hide the window title.
