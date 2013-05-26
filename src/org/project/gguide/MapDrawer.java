@@ -1,21 +1,18 @@
 package org.project.gguide;
 
-import com.google.android.gms.maps.GoogleMap;
-
-import android.opengl.GLSurfaceView;
+import android.view.View;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.hardware.Camera;
 //Map view draws street info on camera frame
 
-public class MapDrawer extends GLSurfaceView implements Camera.PreviewCallback {
+public class MapDrawer extends View implements Camera.PreviewCallback {
 
-	Context mainContext;
-	GoogleMap map;
+	private Context mainContext;
 	
 	public MapDrawer(Context context) {
 		super(context);
-		// TODO Auto-generated constructor stub
+		mainContext = context;
 	}
 
 	@Override
