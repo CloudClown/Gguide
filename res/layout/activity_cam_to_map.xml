@@ -9,5 +9,10 @@
           android:layout_width="fill_parent"
           android:layout_height="fill_parent"
           android:name="com.google.android.gms.maps.MapFragment"/>
-    
+    <Button android:id="@+id/mecam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="Me"/>
 </RelativeLayout>

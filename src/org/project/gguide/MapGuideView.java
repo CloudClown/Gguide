@@ -5,8 +5,10 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import android.location.Location;
 import android.os.Bundle;
@@ -16,7 +18,9 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 
 @SuppressLint("NewApi")
@@ -30,7 +34,7 @@ public class MapGuideView extends Activity implements
 	private LocationClient mLocationClient;
 	public Location mCurrentLocation;
 	public LocationRequest mLocationRequest;
-	
+
 	//constants
 	// Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -45,6 +49,7 @@ public class MapGuideView extends Activity implements
     private static final long FASTEST_INTERVAL =
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
 	
+    
     //helper functions
     private void stopPeriodicUpdates() {
     	mLocationClient.removeLocationUpdates(this);
@@ -52,6 +57,20 @@ public class MapGuideView extends Activity implements
     
     private void startPeriodicUpdates() {
     	mLocationClient.requestLocationUpdates(mLocationRequest, this);
+    }
+    
+    public void changeFocus(Location location) {
+    	// Report to the UI that the location was updated
+        String msg = "Updated Location: " +
+                Double.toString(location.getLatitude()) + "," +
+                Double.toString(location.getLongitude());
+    	Toast.makeText(this, "Focusing...", Toast.LENGTH_SHORT).show();
+    	Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    	LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        
+        // Move the camera instantly to Sydney with a zoom of 15.
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+        this.stopPeriodicUpdates();
     }
     
     @SuppressLint("NewApi")
@@ -82,6 +101,8 @@ public class MapGuideView extends Activity implements
                 
                 // Connect to new location client instance
             	mLocationClient = new LocationClient(this,this,this);
+            	
+            	
             }
         }
     }
@@ -161,12 +182,18 @@ public class MapGuideView extends Activity implements
 	}
 
 	@Override
-	public void onLocationChanged(Location location) {
-		// Report to the UI that the location was updated
-        String msg = "Updated Location: " +
-                Double.toString(location.getLatitude()) + "," +
-                Double.toString(location.getLongitude());
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+	public void onLocationChanged(final Location location) {
+		
+        this.changeFocus(location);
+        
+        //button event
+        //button events
+    	final Button meButton = (Button) findViewById(R.id.me);
+        meButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                changeFocus(location);
+            }
+        });
         
 	}
 
