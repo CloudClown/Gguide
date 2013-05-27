@@ -5,7 +5,7 @@
     tools:context=".CamToMap" >
 
   	<fragment 
-          android:id="@+id/secondMap"
+          android:id="@+id/camMap"
           android:layout_width="fill_parent"
           android:layout_height="fill_parent"
           android:name="com.google.android.gms.maps.MapFragment"/>

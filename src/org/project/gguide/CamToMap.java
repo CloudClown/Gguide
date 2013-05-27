@@ -26,6 +26,7 @@ public class CamToMap extends Activity {
         if (item.getItemId() == R.id.back_to_home) {
             Intent intent = new Intent(this, GuideMain.class);
             startActivity(intent);
+            finish();
         }
         return false;
     }

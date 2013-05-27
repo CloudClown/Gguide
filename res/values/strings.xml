@@ -9,6 +9,6 @@
     <string name="cam_to_map">ENTER MAP</string>
     <string name="enter_main">HOME</string>
     <string name="title_activity_cam_to_map">Gguide</string>
-
+	<string name="location_updates_stopped">Location Updates Stopped</string>
     
 </resources>

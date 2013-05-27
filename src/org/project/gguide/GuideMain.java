@@ -41,9 +41,11 @@ public class GuideMain extends Activity {
     	if (item.getItemId() == R.id.enter_guide) {
 			Intent intent = new Intent(this, MapGuideView.class);
 			startActivity(intent);
+			finish();
 		} else if (item.getItemId() == R.id.enter_map) {
 			Intent intent = new Intent(this, CamToMap.class);
 			startActivity(intent);
+			finish();
 		}
     	
     	return false;
