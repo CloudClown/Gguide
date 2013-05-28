@@ -7,13 +7,20 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
@@ -27,14 +34,25 @@ import android.widget.Toast;
 public class MapGuideView extends Activity implements 
 	GooglePlayServicesClient.ConnectionCallbacks,
 	GooglePlayServicesClient.OnConnectionFailedListener,
-	LocationListener {
+	LocationListener,
+	SensorEventListener {
 	
 	//variables
 	private GoogleMap mMap;
+	private Context context;
 	private LocationClient mLocationClient;
 	public Location mCurrentLocation;
 	public LocationRequest mLocationRequest;
-
+	
+	private SensorManager mSensorManager;
+	private Sensor rotationSensor;
+	private float[] mRotationMatrix = new float[16];
+	private float[] mValues = new float[3];
+	private float mAzi;
+	private float  mTilt;
+	private boolean isRotationViewEnabled;
+	private CameraPosition mCamPos;
+	
 	//constants
 	// Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -59,18 +77,46 @@ public class MapGuideView extends Activity implements
     	mLocationClient.requestLocationUpdates(mLocationRequest, this);
     }
     
-    public void changeFocus(Location location) {
-    	// Report to the UI that the location was updated
-        String msg = "Updated Location: " +
-                Double.toString(location.getLatitude()) + "," +
-                Double.toString(location.getLongitude());
-    	Toast.makeText(this, "Focusing...", Toast.LENGTH_SHORT).show();
-    	Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    private float clamp (float val) {
+    	if (val <= 0) {
+    		return 0;
+    	}
+    	if (val >= 67.5) {
+    		return (float) 67.5;
+    	}
+    	return val;
+    }
+    
+    public void changeFocus(Location location, float tilt, float azi) {
+    	
     	LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         
-        // Move the camera instantly to Sydney with a zoom of 15.
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
-        this.stopPeriodicUpdates();
+        if (!this.isRotationViewEnabled) {
+        	String msg = "Updated Location: " +
+                Double.toString(location.getLatitude()) + "," +
+                Double.toString(location.getLongitude());
+        	Toast.makeText(this, "Focusing...", Toast.LENGTH_SHORT).show();
+        	Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        	// Move the camera instantly to Sydney with a zoom of 15.
+        	CameraPosition cameraPosition1 = new CameraPosition.Builder()
+    			.target(latLng)
+    			.zoom(20)
+    			.bearing(90)
+    			.tilt(90)
+    			.build();
+        	mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition1));
+        	this.stopPeriodicUpdates();
+        } else {
+        	// Move the camera instantly to Sydney with a zoom of 15.
+        	CameraPosition cameraPosition2 = new CameraPosition.Builder()
+    			.target(latLng)
+    			.zoom(14+5*(-tilt/90))
+    			.bearing(-azi)
+    			.tilt(clamp(-tilt))
+    			.build();
+        	mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2));
+        	//this.stopPeriodicUpdates();
+        }
     }
     
     @SuppressLint("NewApi")
@@ -79,7 +125,7 @@ public class MapGuideView extends Activity implements
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_map_guide_view);
-        
+        this.context = this;
         if (mMap == null) {
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.guideMap)).getMap();
             // Check if we were successful in obtaining the map.
@@ -102,7 +148,21 @@ public class MapGuideView extends Activity implements
                 // Connect to new location client instance
             	mLocationClient = new LocationClient(this,this,this);
             	
+            	Toast.makeText(this, "Initializing", Toast.LENGTH_SHORT).show();
             	
+            	//initialize sensor manager
+            	mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+            	rotationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            	mSensorManager.registerListener(this, rotationSensor, 16000);
+            	
+            	//Camera Listener on the Map view
+            	mMap.setOnCameraChangeListener(new OnCameraChangeListener() {
+
+					@Override
+					public void onCameraChange(CameraPosition position) {
+						mCamPos = position;
+					}
+            	});
             }
         }
     }
@@ -128,17 +188,35 @@ public class MapGuideView extends Activity implements
     protected void onStart() {
         super.onStart();
         // Connect the client.
+        Toast.makeText(this, "Starting Activity...", Toast.LENGTH_SHORT).show();
         mLocationClient.connect();
+        final Button deButton = (Button) findViewById(R.id.debug);
+        deButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	Toast.makeText(context, 
+        				"Azimuth:"+Float.toString(mAzi)+","+"Tilt:"+Float.toString(mTilt), 
+        				Toast.LENGTH_SHORT).show();
+            	Toast.makeText(context, 
+            			"bearing:"+Float.toString(mCamPos.bearing) +
+            			"tilt:"+Float.toString(mCamPos.tilt) +
+            			"zoom"+Float.toString(mCamPos.zoom), 
+            			Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
     public void onResume() {
     	super.onResume();
+    	Toast.makeText(this, "Sensor Registered", Toast.LENGTH_SHORT).show();
+    	mSensorManager.registerListener(this, rotationSensor, 16000);
     }
     
     @Override
     protected void onPause() {
         super.onPause();
+        Toast.makeText(this, "Sensor Unregistered", Toast.LENGTH_SHORT).show();
+        mSensorManager.unregisterListener(this);
     }
     
     @Override
@@ -184,17 +262,45 @@ public class MapGuideView extends Activity implements
 	@Override
 	public void onLocationChanged(final Location location) {
 		
-        this.changeFocus(location);
+		this.mCurrentLocation = location;
+        this.changeFocus(location,0,0);
         
-        //button event
         //button events
-    	final Button meButton = (Button) findViewById(R.id.me);
+    	final Button viewButton = (Button) findViewById(R.id.view);
+        viewButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	isRotationViewEnabled = true;
+            	startPeriodicUpdates();
+            }
+        });
+        final Button meButton = (Button) findViewById(R.id.me);
         meButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                changeFocus(location);
+            	isRotationViewEnabled = false;
+            	changeFocus(location, 0,0);
             }
         });
         
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		
+		//calculate the rotation matrix
+		SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
+		SensorManager.getOrientation(mRotationMatrix, mValues);
+		
+		mAzi = (float) Math.toDegrees(mValues[0]);
+		mTilt = (float) Math.toDegrees(mValues[1]);
+		
+		if (this.isRotationViewEnabled)
+			this.changeFocus(mCurrentLocation, mTilt, mAzi);
 	}
 
 }

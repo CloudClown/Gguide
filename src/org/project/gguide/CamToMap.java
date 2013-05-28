@@ -8,6 +8,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.location.Location;
@@ -69,7 +70,13 @@ public class CamToMap extends Activity implements
     	LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         
         // Move the camera instantly to Sydney with a zoom of 15.
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+    	CameraPosition cameraPosition = new CameraPosition.Builder()
+    		.target(latLng)
+    		.zoom(15)
+    		.bearing(90)
+    		.tilt(30)
+    		.build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         this.stopPeriodicUpdates();
     }
     
