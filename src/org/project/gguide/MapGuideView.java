@@ -1,7 +1,11 @@
 package org.project.gguide;
 
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -17,11 +21,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +59,12 @@ public class MapGuideView extends Activity implements
 	private boolean isRotationViewEnabled;
 	private CameraPosition mCamPos;
 	
+	//gcm
+	GoogleCloudMessaging gcm;
+	SharedPreferences prefs;
+	AtomicInteger msgId = new AtomicInteger();
+	String regid;
+	
 	//constants
 	// Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -66,7 +78,8 @@ public class MapGuideView extends Activity implements
     // A fast frequency ceiling in milliseconds
     private static final long FASTEST_INTERVAL =
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
-	
+    public static final String PROPERTY_REG_ID = "registration_id";
+    String GCM_SENDER_ID = "68787639537";
     
     //helper functions
     private void stopPeriodicUpdates() {
@@ -81,8 +94,8 @@ public class MapGuideView extends Activity implements
     	if (val <= 0) {
     		return 0;
     	}
-    	if (val >= 67.5) {
-    		return (float) 67.5;
+    	if (val >= 90) {
+    		return (float) 90;
     	}
     	return val;
     }
@@ -124,6 +137,8 @@ public class MapGuideView extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        prefs = getSharedPreferences(MapGuideView.class.getSimpleName(), 
+                Context.MODE_PRIVATE);
         setContentView(R.layout.activity_map_guide_view);
         this.context = this;
         if (mMap == null) {
@@ -153,7 +168,7 @@ public class MapGuideView extends Activity implements
             	//initialize sensor manager
             	mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
             	rotationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-            	mSensorManager.registerListener(this, rotationSensor, 16000);
+            	mSensorManager.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_NORMAL);
             	
             	//Camera Listener on the Map view
             	mMap.setOnCameraChangeListener(new OnCameraChangeListener() {
@@ -163,11 +178,79 @@ public class MapGuideView extends Activity implements
 						mCamPos = position;
 					}
             	});
+            	
+            	//GCM Registration
+            	regid = prefs.getString(PROPERTY_REG_ID, null);
+            	//register the sender if not already
+            	if (regid == null) {
+            		registerBackground();
+            	}
+            	gcm = GoogleCloudMessaging.getInstance(this);
             }
         }
     }
 
-    @Override
+    private void registerBackground() {
+    	Toast.makeText(context, "Starting Registering GCM...", Toast.LENGTH_SHORT).show();
+    	String msg = "";
+        try {
+            regid = gcm.register(GCM_SENDER_ID);
+            msg = "Device registered, registration id=" + regid;
+
+            // You should send the registration ID to your server over HTTP, 
+            // so it can use GCM/HTTP or CCS to send messages to your app.
+
+            // For this demo: we don't need to send it because the device  
+            // will send upstream messages to a server that will echo back 
+            // the message using the 'from' address in the message. 
+    
+            // Save the regid for future use - no need to register again.
+            //SharedPreferences.Editor editor = prefs.edit();
+            //editor.putString(PROPERTY_REG_ID, regid);
+            //editor.commit();
+        } catch (IOException ex) {
+            msg = "Error :" + ex.getMessage();
+            Log.d("GCM","msg");
+        }
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    	
+    	/*
+    	new AsyncTask <Void, Integer ,String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                String msg = "";
+                try {
+                    regid = gcm.register(GCM_SENDER_ID);
+                    msg = "Device registered, registration id=" + regid;
+
+                    // You should send the registration ID to your server over HTTP, 
+                    // so it can use GCM/HTTP or CCS to send messages to your app.
+
+                    // For this demo: we don't need to send it because the device  
+                    // will send upstream messages to a server that will echo back 
+                    // the message using the 'from' address in the message. 
+            
+                    // Save the regid for future use - no need to register again.
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString(PROPERTY_REG_ID, regid);
+                    editor.commit();
+                } catch (IOException ex) {
+                    msg = "Error :" + ex.getMessage();
+                }
+                return msg;
+            }
+           
+            // Once registration is done, display the registration status
+            // string in the Activity's UI.
+            @Override
+            protected void onPostExecute(String msg) {
+            	Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+            }
+        }.execute(null, null, null);
+        */
+    }
+
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.map_guide_view, menu);
