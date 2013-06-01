@@ -24,7 +24,7 @@ public class GuideMain extends Activity {
         layout = new FrameLayout(this);
         drawer = new MapDrawer(this);
         cameraView = new CameraView(this, drawer);
-        Log.d("Main","Adding Camera to the layout!");
+        
         layout.addView(drawer);
         layout.addView(cameraView);
         setContentView(layout);
@@ -44,6 +44,10 @@ public class GuideMain extends Activity {
 			finish();
 		} else if (item.getItemId() == R.id.enter_map) {
 			Intent intent = new Intent(this, CamToMap.class);
+			startActivity(intent);
+			finish();
+		} else if (item.getItemId() == R.id.find_tours) {
+			Intent intent = new Intent(this, TourList.class);
 			startActivity(intent);
 			finish();
 		}
