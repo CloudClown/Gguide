@@ -130,7 +130,7 @@ public class MapGuideView extends Activity implements
     			.bearing(-azi)
     			.tilt(clamp(-tilt))
     			.build();
-        	mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2), 100, null);
+        	mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2), 500, null);
         	//mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2));
         	//this.stopPeriodicUpdates();
         }
@@ -387,22 +387,17 @@ public class MapGuideView extends Activity implements
 		SensorManager.getOrientation(mRotationMatrix, mValues);
 		
 		if ( camera_change_init ) {
-			float mAzi_tmp, mTilt_tmp, diff;
+			float mAzi_tmp, mTilt_tmp;
 			mAzi_tmp = (float) Math.toDegrees(mValues[0]);
 			mTilt_tmp = (float) Math.toDegrees(mValues[1]);
 			
-			diff = Math.abs(mAzi_tmp - mAzi);
-			if (diff > 1.0f ) {
-				mAzi = mAzi_tmp;
-			}
-			diff = Math.abs(mTilt_tmp - mTilt);
-			if (diff > 1.0f) {
+			if (Math.abs(mAzi_tmp - mAzi) > 45.0f || Math.abs(mTilt_tmp - mTilt) > 45.0f ) {
 				mTilt = mTilt_tmp;
+				mAzi = mAzi_tmp;
 			}
 			
 			if (this.isRotationViewEnabled)
 				this.changeFocus(mCurrentLocation, mTilt, mAzi);
-			
 		} else {
 			camera_change_init = true;
 			mAzi = (float) Math.toDegrees(mValues[0]);
@@ -411,6 +406,8 @@ public class MapGuideView extends Activity implements
 			if (this.isRotationViewEnabled)
 				this.changeFocus(mCurrentLocation, mTilt, mAzi);
 		}
+		
+		Log.d("MapViewGuide","mTilt " + mTilt + "mAzi " + mAzi);
 	
 		
 	}
