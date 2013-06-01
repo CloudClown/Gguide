@@ -56,6 +56,8 @@ public class MapGuideView extends Activity implements
 	private float[] mValues = new float[3];
 	private float mAzi;
 	private float  mTilt;
+	private boolean camera_change_init;
+	
 	private boolean isRotationViewEnabled;
 	private CameraPosition mCamPos;
 	
@@ -121,13 +123,15 @@ public class MapGuideView extends Activity implements
         	this.stopPeriodicUpdates();
         } else {
         	// Move the camera instantly to Sydney with a zoom of 15.
+        	
         	CameraPosition cameraPosition2 = new CameraPosition.Builder()
     			.target(latLng)
     			.zoom(14+5*(-tilt/90))
     			.bearing(-azi)
     			.tilt(clamp(-tilt))
     			.build();
-        	mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2));
+        	mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2), 100, null);
+        	//mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2));
         	//this.stopPeriodicUpdates();
         }
     }
@@ -141,6 +145,9 @@ public class MapGuideView extends Activity implements
                 Context.MODE_PRIVATE);
         setContentView(R.layout.activity_map_guide_view);
         this.context = this;
+        
+        camera_change_init = false;
+        
         if (mMap == null) {
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.guideMap)).getMap();
             // Check if we were successful in obtaining the map.
@@ -180,12 +187,12 @@ public class MapGuideView extends Activity implements
             	});
             	
             	//GCM Registration
-            	regid = prefs.getString(PROPERTY_REG_ID, null);
+            	//regid = prefs.getString(PROPERTY_REG_ID, null);
             	//register the sender if not already
             	if (regid == null) {
-            		registerBackground();
+            		//registerBackground();
             	}
-            	gcm = GoogleCloudMessaging.getInstance(this);
+            	//gcm = GoogleCloudMessaging.getInstance(this);
             }
         }
     }
@@ -374,16 +381,37 @@ public class MapGuideView extends Activity implements
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		
 		//calculate the rotation matrix
 		SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
 		SensorManager.getOrientation(mRotationMatrix, mValues);
 		
-		mAzi = (float) Math.toDegrees(mValues[0]);
-		mTilt = (float) Math.toDegrees(mValues[1]);
+		if ( camera_change_init ) {
+			float mAzi_tmp, mTilt_tmp, diff;
+			mAzi_tmp = (float) Math.toDegrees(mValues[0]);
+			mTilt_tmp = (float) Math.toDegrees(mValues[1]);
+			
+			diff = Math.abs(mAzi_tmp - mAzi);
+			if (diff > 1.0f ) {
+				mAzi = mAzi_tmp;
+			}
+			diff = Math.abs(mTilt_tmp - mTilt);
+			if (diff > 1.0f) {
+				mTilt = mTilt_tmp;
+			}
+			
+			if (this.isRotationViewEnabled)
+				this.changeFocus(mCurrentLocation, mTilt, mAzi);
+			
+		} else {
+			camera_change_init = true;
+			mAzi = (float) Math.toDegrees(mValues[0]);
+			mTilt = (float) Math.toDegrees(mValues[1]);
+			
+			if (this.isRotationViewEnabled)
+				this.changeFocus(mCurrentLocation, mTilt, mAzi);
+		}
+	
 		
-		if (this.isRotationViewEnabled)
-			this.changeFocus(mCurrentLocation, mTilt, mAzi);
 	}
 
 }
