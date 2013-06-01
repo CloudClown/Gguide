@@ -200,7 +200,8 @@ public class MapGuideView extends Activity implements
     private void registerBackground() {
     	Toast.makeText(context, "Starting Registering GCM...", Toast.LENGTH_SHORT).show();
     	String msg = "";
-        try {
+        /*
+    	try {
             regid = gcm.register(GCM_SENDER_ID);
             msg = "Device registered, registration id=" + regid;
 
@@ -218,7 +219,7 @@ public class MapGuideView extends Activity implements
         } catch (IOException ex) {
             msg = "Error :" + ex.getMessage();
             Log.d("GCM","msg");
-        }
+        }*/
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     	
     	/*
