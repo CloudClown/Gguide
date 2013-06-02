@@ -1,10 +1,10 @@
+*.diff
 *~
 bin
 gen
+libs
 .project
 .classpath
-libs
 proguard-project.txt
 project.properties
-AndroidManifest.xml
 .settings

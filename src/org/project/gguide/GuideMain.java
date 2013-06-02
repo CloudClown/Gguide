@@ -2,7 +2,6 @@ package org.project.gguide;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -10,6 +9,7 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
+import android.content.SharedPreferences;
 
 public class GuideMain extends Activity {
 	
@@ -39,9 +39,10 @@ public class GuideMain extends Activity {
         layout = new FrameLayout(this);
         drawer = new MapDrawer(this);
         cameraView = new CameraView(this, drawer);
+        Log.d("Main","Adding Camera to the layout!");
         
-        layout.addView(drawer);
         layout.addView(cameraView);
+        layout.addView(drawer);
         setContentView(layout);
     }
     

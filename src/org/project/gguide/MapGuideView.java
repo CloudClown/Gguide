@@ -1,11 +1,7 @@
 package org.project.gguide;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -21,7 +17,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -35,55 +30,52 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 @SuppressLint("NewApi")
 public class MapGuideView extends Activity implements 
-	GooglePlayServicesClient.ConnectionCallbacks,
-	GooglePlayServicesClient.OnConnectionFailedListener,
-	LocationListener,
-	SensorEventListener {
+                                               GooglePlayServicesClient.ConnectionCallbacks,
+                                               GooglePlayServicesClient.OnConnectionFailedListener,
+                                               LocationListener,
+                                               SensorEventListener {
 	
-	//variables
-	private GoogleMap mMap;
-	private Context context;
-	private LocationClient mLocationClient;
-	public Location mCurrentLocation;
-	public LocationRequest mLocationRequest;
+    //variables
+    private GoogleMap mMap;
+    private Context context;
+    private LocationClient mLocationClient;
+    public Location mCurrentLocation;
+    public LocationRequest mLocationRequest;
 	
-	private SensorManager mSensorManager;
-	private Sensor rotationSensor;
-	private float[] mRotationMatrix = new float[16];
-	private float[] mValues = new float[3];
-	private float mAzi;
-	private float  mTilt;
-	private boolean camera_change_init;
+    private SensorManager mSensorManager;
+    private Sensor rotationSensor;
+    private float[] mRotationMatrix = new float[16];
+    private float[] mValues = new float[3];
+    private float mAzi;
+    private float  mTilt;
+    private boolean isRotationViewEnabled;
+    private CameraPosition mCamPos;
+    private boolean camera_change_init;
 	
-	private boolean isRotationViewEnabled;
-	private CameraPosition mCamPos;
+    public static final String PREFS_NAME = "GGuideData";
 	
-	public static final String PREFS_NAME = "GGuideData";
-	
-	//gcm
-	GoogleCloudMessaging gcm;
-	SharedPreferences prefs;
-	AtomicInteger msgId = new AtomicInteger();
-	String regid;
-	
-	//constants
-	// Milliseconds per second
+    ParseManager Messenger;
+    
+    //constants
+    // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
     // Update frequency in seconds
     public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
     // Update frequency in milliseconds
     private static final long UPDATE_INTERVAL =
-            MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
+        MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
     // The fastest update frequency, in seconds
     private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
     // A fast frequency ceiling in milliseconds
     private static final long FASTEST_INTERVAL =
-            MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
-    public static final String PROPERTY_REG_ID = "registration_id";
-    String GCM_SENDER_ID = "68787639537";
+        MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
+    //public static final String PROPERTY_REG_ID = "registration_id";
+    //String GCM_SENDER_ID = "68787639537";
     
     //helper functions
     private void stopPeriodicUpdates() {
@@ -96,10 +88,10 @@ public class MapGuideView extends Activity implements
     
     private float clamp (float val) {
     	if (val <= 0) {
-    		return 0;
+            return 0;
     	}
     	if (val >= 90) {
-    		return (float) 90;
+            return (float) 90;
     	}
     	return val;
     }
@@ -109,52 +101,50 @@ public class MapGuideView extends Activity implements
     	LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         
         if (!this.isRotationViewEnabled) {
-        	String msg = "Updated Location: " +
-                Double.toString(location.getLatitude()) + "," +
-                Double.toString(location.getLongitude());
-        	Toast.makeText(this, "Focusing...", Toast.LENGTH_SHORT).show();
-        	Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-        	// Move the camera instantly to Sydney with a zoom of 15.
-        	CameraPosition cameraPosition1 = new CameraPosition.Builder()
-    			.target(latLng)
-    			.zoom(20)
-    			.bearing(90)
-    			.tilt(90)
-    			.build();
-        	mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition1));
-        	this.stopPeriodicUpdates();
+            /*
+              String msg = "Updated Location: " +
+              Double.toString(location.getLatitude()) + "," +
+              Double.toString(location.getLongitude());
+              Toast.makeText(this, "Focusing...", Toast.LENGTH_SHORT).show();
+              Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            */
+            // Move the camera instantly to Sydney with a zoom of 15.
+            CameraPosition cameraPosition1 = new CameraPosition.Builder()
+                .target(latLng)
+                .zoom(20)
+                .bearing(90)
+                .tilt(90)
+                .build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition1));
+            this.stopPeriodicUpdates();
         } else {
-        	// Move the camera instantly to Sydney with a zoom of 15.
-        	
-        	CameraPosition cameraPosition2 = new CameraPosition.Builder()
-    			.target(latLng)
-    			.zoom(14+5*(-tilt/90))
-    			.bearing(-azi)
-    			.tilt(clamp(-tilt))
-    			.build();
-        	mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2), 500, null);
-        	//mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2));
-        	//this.stopPeriodicUpdates();
+            // Move the camera instantly to Sydney with a zoom of 15.
+            CameraPosition cameraPosition2 = new CameraPosition.Builder()
+                .target(latLng)
+                .zoom(14+5*(-tilt/90))
+                .bearing(-azi)
+                .tilt(clamp(-tilt))
+                .build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition2));
+            //this.stopPeriodicUpdates();
         }
     }
     
     @SuppressLint("NewApi")
-	@Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        prefs = getSharedPreferences(MapGuideView.class.getSimpleName(), 
-                Context.MODE_PRIVATE);
+        /*
+          prefs = getSharedPreferences(MapGuideView.class.getSimpleName(), 
+          Context.MODE_PRIVATE);
+        */
         setContentView(R.layout.activity_map_guide_view);
         this.context = this;
-        
-        
         SharedPreferences data = getSharedPreferences(PREFS_NAME, 0);
         String s = data.getString("string1", "string not found");
         Toast.makeText(this, s, Toast.LENGTH_LONG).show();
-        
         camera_change_init = false;
-        
         if (mMap == null) {
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.guideMap)).getMap();
             // Check if we were successful in obtaining the map.
@@ -167,8 +157,7 @@ public class MapGuideView extends Activity implements
             	// Create the LocationRequest object
                 mLocationRequest = LocationRequest.create();
                 // Use high accuracy
-                mLocationRequest.setPriority(
-                        LocationRequest.PRIORITY_HIGH_ACCURACY);
+                mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
                 // Set the update interval to 5 seconds
                 mLocationRequest.setInterval(UPDATE_INTERVAL);
                 // Set the fastest update interval to 1 second
@@ -187,85 +176,21 @@ public class MapGuideView extends Activity implements
             	//Camera Listener on the Map view
             	mMap.setOnCameraChangeListener(new OnCameraChangeListener() {
 
-					@Override
-					public void onCameraChange(CameraPosition position) {
-						mCamPos = position;
-					}
-            	});
+                        @Override
+                        public void onCameraChange(CameraPosition position) {
+                            mCamPos = position;
+                        }
+                    });
             	
-            	//GCM Registration
-            	//regid = prefs.getString(PROPERTY_REG_ID, null);
-            	//register the sender if not already
-            	if (regid == null) {
-            		//registerBackground();
-            	}
-            	//gcm = GoogleCloudMessaging.getInstance(this);
+            	//Parse for real time messaging
+            	Messenger = new ParseManager(this);
+            	
+            	
             }
         }
     }
-
-    private void registerBackground() {
-    	Toast.makeText(context, "Starting Registering GCM...", Toast.LENGTH_SHORT).show();
-    	String msg = "";
-        /*
-    	try {
-            regid = gcm.register(GCM_SENDER_ID);
-            msg = "Device registered, registration id=" + regid;
-
-            // You should send the registration ID to your server over HTTP, 
-            // so it can use GCM/HTTP or CCS to send messages to your app.
-
-            // For this demo: we don't need to send it because the device  
-            // will send upstream messages to a server that will echo back 
-            // the message using the 'from' address in the message. 
     
-            // Save the regid for future use - no need to register again.
-            //SharedPreferences.Editor editor = prefs.edit();
-            //editor.putString(PROPERTY_REG_ID, regid);
-            //editor.commit();
-        } catch (IOException ex) {
-            msg = "Error :" + ex.getMessage();
-            Log.d("GCM","msg");
-        }*/
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-    	
-    	/*
-    	new AsyncTask <Void, Integer ,String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                String msg = "";
-                try {
-                    regid = gcm.register(GCM_SENDER_ID);
-                    msg = "Device registered, registration id=" + regid;
-
-                    // You should send the registration ID to your server over HTTP, 
-                    // so it can use GCM/HTTP or CCS to send messages to your app.
-
-                    // For this demo: we don't need to send it because the device  
-                    // will send upstream messages to a server that will echo back 
-                    // the message using the 'from' address in the message. 
-            
-                    // Save the regid for future use - no need to register again.
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString(PROPERTY_REG_ID, regid);
-                    editor.commit();
-                } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
-                }
-                return msg;
-            }
-           
-            // Once registration is done, display the registration status
-            // string in the Activity's UI.
-            @Override
-            protected void onPostExecute(String msg) {
-            	Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-            }
-        }.execute(null, null, null);
-        */
-    }
-
-	@Override
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.map_guide_view, menu);
@@ -278,6 +203,26 @@ public class MapGuideView extends Activity implements
             Intent intent = new Intent(this, GuideMain.class);
             startActivity(intent);
             finish();
+            return true;
+        } else if (item.getItemId() == R.id.tour_guide) {
+            isRotationViewEnabled = false;
+        		           	
+            Marker markStart = mMap.addMarker(new MarkerOptions()
+                                              .position(new LatLng(this.mCurrentLocation.getLatitude(), this.mCurrentLocation.getLongitude())) // Mountain View
+                                              .title("I am here!")
+                                              .snippet("Population: Happiness"));
+        		          	
+            //changeFocus(location, 0,0);
+            mapAnim anim = new mapAnim(mMap);
+        		           	
+            Marker markEnd = mMap.addMarker(new MarkerOptions()
+                                            .position(new LatLng(34.0431, -118.2671)) // Staples Center
+                                            .title("I am here now!")
+                                            .snippet("Population: Happiness"));
+        		           	
+            anim = new mapAnim(mMap);
+            anim.animateTo(markStart, markEnd);
+            return true;
         }
         return false;
     }
@@ -290,24 +235,24 @@ public class MapGuideView extends Activity implements
         mLocationClient.connect();
         final Button deButton = (Button) findViewById(R.id.debug);
         deButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	Toast.makeText(context, 
-        				"Azimuth:"+Float.toString(mAzi)+","+"Tilt:"+Float.toString(mTilt), 
-        				Toast.LENGTH_SHORT).show();
-            	Toast.makeText(context, 
-            			"bearing:"+Float.toString(mCamPos.bearing) +
-            			"tilt:"+Float.toString(mCamPos.tilt) +
-            			"zoom"+Float.toString(mCamPos.zoom), 
-            			Toast.LENGTH_SHORT).show();
-            }
-        });
+                public void onClick(View v) {
+                    Toast.makeText(context, 
+                                   "Azimuth:"+Float.toString(mAzi)+","+"Tilt:"+Float.toString(mTilt), 
+                                   Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, 
+                                   "bearing:"+Float.toString(mCamPos.bearing) +
+                                   "tilt:"+Float.toString(mCamPos.tilt) +
+                                   "zoom"+Float.toString(mCamPos.zoom), 
+                                   Toast.LENGTH_SHORT).show();
+                }
+            });
     }
 
     @Override
     public void onResume() {
-    	super.onResume();
-    	Toast.makeText(this, "Sensor Registered", Toast.LENGTH_SHORT).show();
-    	mSensorManager.registerListener(this, rotationSensor, 16000);
+        super.onResume();
+        Toast.makeText(this, "Sensor Registered", Toast.LENGTH_SHORT).show();
+        mSensorManager.registerListener(this, rotationSensor, 16000);
     }
     
     @Override
@@ -319,7 +264,7 @@ public class MapGuideView extends Activity implements
     
     @Override
     protected void onStop() {
-    	Log.d("OnStop","Stop Periodic Updates");
+        Log.d("OnStop","Stop Periodic Updates");
         // If the client is connected
         if (mLocationClient.isConnected()) {
             stopPeriodicUpdates();
@@ -332,16 +277,16 @@ public class MapGuideView extends Activity implements
         super.onStop();
     }
     
-	@Override
-	public void onConnectionFailed(ConnectionResult result) {
-		// Display the connection status
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        // Display the connection status
         Toast.makeText(this, "Connection failed!",
-                Toast.LENGTH_SHORT).show();
+                       Toast.LENGTH_SHORT).show();
         Log.d("Location","Connection Failed!");
-	}
+    }
 
-	@Override
-	public void onConnected(Bundle connectionHint) {
+    @Override
+    public void onConnected(Bundle connectionHint) {
         // Display the connection status
         Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
         Log.d("Location","Connection Succeeded!");
@@ -349,76 +294,73 @@ public class MapGuideView extends Activity implements
         
     }
 
-	@Override
-	public void onDisconnected() {
-		// Display the connection status
+    @Override
+    public void onDisconnected() {
+        // Display the connection status
         Toast.makeText(this, "Disconnected. Please re-connect.",
-                Toast.LENGTH_SHORT).show();
+                       Toast.LENGTH_SHORT).show();
         Log.d("Location","Disconnected!");
-	}
+    }
 
-	@Override
-	public void onLocationChanged(final Location location) {
+    @Override
+    public void onLocationChanged(final Location location) {
 		
-		this.mCurrentLocation = location;
+        this.mCurrentLocation = location;
         this.changeFocus(location,0,0);
         
         //button events
-    	final Button viewButton = (Button) findViewById(R.id.view);
+        final Button viewButton = (Button) findViewById(R.id.view);
         viewButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	isRotationViewEnabled = true;
-            	
-            	
-            	//startPeriodicUpdates();
-            }
-        });
+                public void onClick(View v) {
+                    isRotationViewEnabled = true;
+                    //startPeriodicUpdates();
+                }
+            });
         final Button meButton = (Button) findViewById(R.id.me);
         meButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	isRotationViewEnabled = false;
-            	changeFocus(location, 0,0);
-            }
-        });
+                public void onClick(View v) {
+                    isRotationViewEnabled = false;
+                    changeFocus(location, 0,0);
+                }
+            });
         
-	}
+    }
 
-	@Override
-	public void onAccuracyChanged(Sensor arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void onAccuracyChanged(Sensor arg0, int arg1) {
+        // TODO Auto-generated method stub
+    }
 
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		//calculate the rotation matrix
-		SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
-		SensorManager.getOrientation(mRotationMatrix, mValues);
+    @Override
+    public void onSensorChanged(SensorEvent event) {
 		
-		if ( camera_change_init ) {
-			float mAzi_tmp, mTilt_tmp;
-			mAzi_tmp = (float) Math.toDegrees(mValues[0]);
-			mTilt_tmp = (float) Math.toDegrees(mValues[1]);
-			
-			if (Math.abs(mAzi_tmp - mAzi) > 45.0f || Math.abs(mTilt_tmp - mTilt) > 45.0f ) {
-				mTilt = mTilt_tmp;
-				mAzi = mAzi_tmp;
-				
-				if (this.isRotationViewEnabled)
-					this.changeFocus(mCurrentLocation, mTilt, mAzi);
-			}
-			
-			
-		} else {
-			camera_change_init = true;
-			mAzi = (float) Math.toDegrees(mValues[0]);
-			mTilt = (float) Math.toDegrees(mValues[1]);
-			
-			if (this.isRotationViewEnabled)
-				this.changeFocus(mCurrentLocation, mTilt, mAzi);
-		}
+        //calculate the rotation matrix
+        SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
+        SensorManager.getOrientation(mRotationMatrix, mValues);
 		
-		Log.d("MapViewGuide","mTilt " + mTilt + "mAzi " + mAzi);		
-	}
+        if ( camera_change_init ) {
+            float mAzi_tmp, mTilt_tmp;
+            mAzi_tmp = (float) Math.toDegrees(mValues[0]);
+            mTilt_tmp = (float) Math.toDegrees(mValues[1]);
+						
+            if (Math.abs(mAzi_tmp - mAzi) > 45.0f || Math.abs(mTilt_tmp - mTilt) > 45.0f ) {
+                mTilt = mTilt_tmp;
+                mAzi = mAzi_tmp;
+			 				
+                if (this.isRotationViewEnabled)
+                    this.changeFocus(mCurrentLocation, mTilt, mAzi);
+            }
+			 			
+			 			
+        } else {
+            camera_change_init = true;
+            mAzi = (float) Math.toDegrees(mValues[0]);
+            mTilt = (float) Math.toDegrees(mValues[1]);
+			 			
+            if (this.isRotationViewEnabled)
+                this.changeFocus(mCurrentLocation, mTilt, mAzi);
+        }
+        Log.d("MapViewGuide","mTilt " + mTilt + "mAzi " + mAzi);
+    }
 
 }
