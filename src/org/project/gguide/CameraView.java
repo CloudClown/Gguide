@@ -24,7 +24,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-
+ class StreetLatLongObject{
+        public StreetLatLongObject(ArrayList<String> streets2,
+                ArrayList<Double> longitudes2, ArrayList<Double> latitudes2) {
+            streets = streets2;
+            longitudes = longitudes2;
+            latitudes = latitudes2;
+        }
+        public ArrayList<String> streets ;
+        public ArrayList<Double> longitudes;
+        public ArrayList<Double> latitudes;
+    };
+    
 
 public class CameraView extends SurfaceView implements
         SurfaceHolder.Callback {
@@ -83,18 +94,7 @@ public class CameraView extends SurfaceView implements
         return optimalSize;
     }
     
-    class StreetLatLongObject{
-    	public StreetLatLongObject(ArrayList<String> streets2,
-				ArrayList<Double> longitudes2, ArrayList<Double> latitudes2) {
-			streets = streets2;
-			longitudes = longitudes2;
-			latitudes = latitudes2;
-		}
-		public ArrayList<String> streets ;
-    	public ArrayList<Double> longitudes;
-    	public ArrayList<Double> latitudes;
-    };
-    
+   
     public StreetLatLongObject FindStreets (double long_min, double long_max, double lat_min, double lat_max) throws IOException{
     	ArrayList<String>streets = new ArrayList<String>();
     	ArrayList<Double> longitudes = new ArrayList<Double>();
