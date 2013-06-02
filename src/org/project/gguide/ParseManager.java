@@ -7,6 +7,7 @@ import android.content.Context;
 import android.location.Location;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.Marker;
 import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -37,9 +38,10 @@ public class ParseManager {
         sMsg.put("isGuide",false);
         //[food, hotel, park, music, fun]
         sMsg.put("specialty", Arrays.asList(0,0,0,0,0));
-        sMsg.put("markers", (new ArrayList<Location>()));
+        sMsg.put("markers", (new ArrayList<Marker>()));
         sMsg.put("isChat", true);
         sMsg.put("chatText", "");
+        sMsg.put("credit", 0);
         sMsg.saveInBackground();
 		
         rMsg = new ParseObject(receiverID);
@@ -47,9 +49,10 @@ public class ParseManager {
         rMsg.put("isGuide",false);
         //[food, hotel, park, music, fun]
         rMsg.put("specialty", Arrays.asList(0,0,0,0,0));
-        rMsg.put("markers", (new ArrayList<Location>()));
+        rMsg.put("markers", (new ArrayList<Marker>()));
         rMsg.put("isChat", true);
         rMsg.put("chatText", "");
+        rMsg.put("credit", 0);
         rMsg.saveInBackground();
         Toast.makeText(mContext, "msg sent", Toast.LENGTH_SHORT).show();
 		
