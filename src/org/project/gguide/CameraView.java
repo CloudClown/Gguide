@@ -7,6 +7,8 @@ package org.project.gguide;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 
+
 public class CameraView extends SurfaceView implements
         SurfaceHolder.Callback {
     //common variables
@@ -26,7 +29,8 @@ public class CameraView extends SurfaceView implements
     private Camera mCamera;
     private Camera.PreviewCallback camPreviewCallback;
     private Context mainActivity;
-
+    
+   
     public CameraView(Context context, Camera.PreviewCallback previewCallback) {
         super(context);
         //add surfaceview to the main context layer
