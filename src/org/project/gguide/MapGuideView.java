@@ -59,11 +59,13 @@ public class MapGuideView extends Activity implements
 	private boolean isRotationViewEnabled;
 	private CameraPosition mCamPos;
 	
+	/*
 	//gcm
 	GoogleCloudMessaging gcm;
 	SharedPreferences prefs;
 	AtomicInteger msgId = new AtomicInteger();
 	String regid;
+	*/
 	
 	//constants
 	// Milliseconds per second
@@ -78,8 +80,8 @@ public class MapGuideView extends Activity implements
     // A fast frequency ceiling in milliseconds
     private static final long FASTEST_INTERVAL =
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
-    public static final String PROPERTY_REG_ID = "registration_id";
-    String GCM_SENDER_ID = "68787639537";
+    //public static final String PROPERTY_REG_ID = "registration_id";
+    //String GCM_SENDER_ID = "68787639537";
     
     //helper functions
     private void stopPeriodicUpdates() {
@@ -137,8 +139,10 @@ public class MapGuideView extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        /*
         prefs = getSharedPreferences(MapGuideView.class.getSimpleName(), 
                 Context.MODE_PRIVATE);
+        */
         setContentView(R.layout.activity_map_guide_view);
         this.context = this;
         if (mMap == null) {
@@ -179,21 +183,24 @@ public class MapGuideView extends Activity implements
 					}
             	});
             	
+            	/*
             	//GCM Registration
             	regid = prefs.getString(PROPERTY_REG_ID, null);
             	//register the sender if not already
             	if (regid == null) {
-            		registerBackground();
+            		//registerBackground();
             	}
             	gcm = GoogleCloudMessaging.getInstance(this);
+            	*/
             }
         }
     }
-
+    
+    /*
     private void registerBackground() {
     	Toast.makeText(context, "Starting Registering GCM...", Toast.LENGTH_SHORT).show();
     	String msg = "";
-        /*
+        
     	try {
             regid = gcm.register(GCM_SENDER_ID);
             msg = "Device registered, registration id=" + regid;
@@ -212,10 +219,10 @@ public class MapGuideView extends Activity implements
         } catch (IOException ex) {
             msg = "Error :" + ex.getMessage();
             Log.d("GCM","msg");
-        }*/
+        }
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     	
-    	/*
+    	
     	new AsyncTask <Void, Integer ,String>() {
             @Override
             protected String doInBackground(Void... params) {
@@ -248,8 +255,8 @@ public class MapGuideView extends Activity implements
             	Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
             }
         }.execute(null, null, null);
-        */
-    }
+        
+    }*/
 
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -370,7 +377,6 @@ public class MapGuideView extends Activity implements
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

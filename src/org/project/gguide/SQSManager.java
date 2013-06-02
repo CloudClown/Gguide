@@ -2,6 +2,9 @@ package org.project.gguide;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+
+import android.os.AsyncTask;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sns.AmazonSNSClient;
@@ -13,51 +16,65 @@ import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
 import com.amazonaws.services.sqs.model.ListQueuesRequest;
 import com.amazonaws.services.sqs.model.ListQueuesResult;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
 
-public class SNSManager {
+public class SQSManager {
+
+	private AmazonSNSClient snsClient;
+	private AmazonSQSClient sqsClient;
+	private final String[]  users = new String[] {"JackieJ", "RyanC"};
+	private String topicARN;
+	private String queueURL;
 	
-	private final AmazonSNSClient client;
-	//TODO add real username here
-	private final String userName = "hello";
-	private SNSManager () {
+	private SQSManager () {
 		Random rand = new Random();
-		String randStr = rand.nextInt()+"";
 		BasicAWSCredentials creds = new BasicAWSCredentials("AKIAI5JU3AHJTVGQODJQ", "Y7eKeWnxUlyjMhJGQRaJthEw2WNULu9W/xg+Vh0o");
-		client = new AmazonSNSClient(creds);
-		client.createTopic(new CreateTopicRequest(randStr));
 		AmazonSQSClient sqsClient = new AmazonSQSClient(creds);
-		String queueARN = initializeQueue(sqsClient);
+		String myQueue = initializeQueue(sqsClient, users[0]);
+		String otherQueue = initializeQueue(sqsClient, users[1]);
 		
+		//sending and receiving messages
+		runAsync();
 		
-		client.subscribe(new SubscribeRequest(randStr, "sqs", queueARN));
+		//do in an infinite loop in another thread
+		sqsClient.receiveMessage(new ReceiveMessageRequest(myQueue));
+		
+		sqsClient.sendMessage(new SendMessageRequest(otherQueue, "helloWorld"));
+		
 	}
 
+	private void runAsync() {
+		new AsyncTask <Void, Integer ,String>() {
+
+			@Override
+			protected String doInBackground(Void... params) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+		}.execute(null,null,null);
+	}
+	
 	/**
 	 * checks to see if the sqs topic for this user exists. 
 	 * creates a new topic if it does not exist
 	 * @param sqsClient 
-	 * @return queue arn
+	 * @param userName 
+	 * @return queue url
 	 */
-	private String initializeQueue(AmazonSQSClient sqsClient) {
-		String realUrl = null;
+	private String initializeQueue(AmazonSQSClient sqsClient, String userName) {
 		ListQueuesResult queues = sqsClient.listQueues(new ListQueuesRequest(userName));
 		List<String> queueURLs = queues.getQueueUrls();
 		for (String queueUrl : queueURLs) {
 			System.err.println(queueUrl);
 			if (queueUrl.endsWith(userName)) {
-				realUrl = queueUrl;
-				break;
+				return queueUrl;
 			}
 		}
-		if (realUrl == null) {
-			realUrl = sqsClient.createQueue(new CreateQueueRequest(userName)).getQueueUrl();
-		}
-		
-		
-		return sqsClient.getQueueAttributes(new GetQueueAttributesRequest(realUrl)).getAttributes().get("QueueArn");
-		
-		
+		return sqsClient.createQueue(new CreateQueueRequest(userName)).getQueueUrl();
+
 	}
-	
-	
+
+
 }
