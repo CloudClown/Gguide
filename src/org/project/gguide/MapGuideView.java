@@ -368,7 +368,9 @@ public class MapGuideView extends Activity implements
         viewButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	isRotationViewEnabled = true;
-            	startPeriodicUpdates();
+            	
+            	
+            	//startPeriodicUpdates();
             }
         });
         final Button meButton = (Button) findViewById(R.id.me);
@@ -401,10 +403,12 @@ public class MapGuideView extends Activity implements
 			if (Math.abs(mAzi_tmp - mAzi) > 45.0f || Math.abs(mTilt_tmp - mTilt) > 45.0f ) {
 				mTilt = mTilt_tmp;
 				mAzi = mAzi_tmp;
+				
+				if (this.isRotationViewEnabled)
+					this.changeFocus(mCurrentLocation, mTilt, mAzi);
 			}
 			
-			if (this.isRotationViewEnabled)
-				this.changeFocus(mCurrentLocation, mTilt, mAzi);
+			
 		} else {
 			camera_change_init = true;
 			mAzi = (float) Math.toDegrees(mValues[0]);
@@ -414,9 +418,7 @@ public class MapGuideView extends Activity implements
 				this.changeFocus(mCurrentLocation, mTilt, mAzi);
 		}
 		
-		//Log.d("MapViewGuide","mTilt " + mTilt + "mAzi " + mAzi);
-	
-		
+		Log.d("MapViewGuide","mTilt " + mTilt + "mAzi " + mAzi);		
 	}
 
 }
