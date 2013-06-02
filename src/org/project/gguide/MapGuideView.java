@@ -35,6 +35,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import android.os.SystemClock;
 
 @SuppressLint("NewApi")
 public class MapGuideView extends Activity implements 
@@ -166,8 +169,7 @@ public class MapGuideView extends Activity implements
             	// Create the LocationRequest object
                 mLocationRequest = LocationRequest.create();
                 // Use high accuracy
-                mLocationRequest.setPriority(
-                                             LocationRequest.PRIORITY_HIGH_ACCURACY);
+                mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
                 // Set the update interval to 5 seconds
                 mLocationRequest.setInterval(UPDATE_INTERVAL);
                 // Set the fastest update interval to 1 second
@@ -280,6 +282,26 @@ public class MapGuideView extends Activity implements
             Intent intent = new Intent(this, GuideMain.class);
             startActivity(intent);
             finish();
+            return true;
+        } else if (item.getItemId() == R.id.tour_guide) {
+            isRotationViewEnabled = false;
+        		           	
+            Marker markStart = mMap.addMarker(new MarkerOptions()
+                                              .position(new LatLng(this.mCurrentLocation.getLatitude(), this.mCurrentLocation.getLongitude())) // Mountain View
+                                              .title("I am here!")
+                                              .snippet("Population: Happiness"));
+        		          	
+            //changeFocus(location, 0,0);
+            mapAnim anim = new mapAnim(mMap);
+        		           	
+            Marker markEnd = mMap.addMarker(new MarkerOptions()
+                                            .position(new LatLng(34.0431, -118.2671)) // Staples Center
+                                            .title("I am here now!")
+                                            .snippet("Population: Happiness"));
+        		           	
+            anim = new mapAnim(mMap);
+            anim.animateTo(markStart, markEnd);
+            return true;
         }
         return false;
     }
@@ -307,9 +329,9 @@ public class MapGuideView extends Activity implements
 
     @Override
     public void onResume() {
-    	super.onResume();
-    	Toast.makeText(this, "Sensor Registered", Toast.LENGTH_SHORT).show();
-    	mSensorManager.registerListener(this, rotationSensor, 16000);
+        super.onResume();
+        Toast.makeText(this, "Sensor Registered", Toast.LENGTH_SHORT).show();
+        mSensorManager.registerListener(this, rotationSensor, 16000);
     }
     
     @Override
@@ -321,7 +343,7 @@ public class MapGuideView extends Activity implements
     
     @Override
     protected void onStop() {
-    	Log.d("OnStop","Stop Periodic Updates");
+        Log.d("OnStop","Stop Periodic Updates");
         // If the client is connected
         if (mLocationClient.isConnected()) {
             stopPeriodicUpdates();
@@ -366,7 +388,7 @@ public class MapGuideView extends Activity implements
         this.changeFocus(location,0,0);
         
         //button events
-    	final Button viewButton = (Button) findViewById(R.id.view);
+        final Button viewButton = (Button) findViewById(R.id.view);
         viewButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     isRotationViewEnabled = true;

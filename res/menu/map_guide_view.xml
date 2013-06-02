@@ -10,5 +10,10 @@
    		android:title="@string/enter_main"
        	android:showAsAction="ifRoom"
     	android:gravity="center"/>
+    <item 
+       	android:id="@+id/tour_guide"
+   		android:title="Tour"
+       	android:showAsAction="ifRoom"
+    	android:gravity="center"/>
     
 </menu>
