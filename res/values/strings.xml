@@ -5,10 +5,10 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_map_guide_view">Gguide</string>
-    <string name="enter_map_view">ENTER GUIDE</string>
-    <string name="cam_to_map">ENTER MAP</string>
-    <string name="enter_main">HOME</string>
-    <string name="title_activity_cam_to_map">Gguide</string>
+   	<string name="enter_map_view">GUIDE</string>  	
+   	<string name="cam_to_map">MAP</string>
+   	<string name="enter_main">HOME</string>
+ 	<string name="title_activity_cam_to_map">Gguide</string>
 	<string name="location_updates_stopped">Location Updates Stopped</string>
     
 </resources>

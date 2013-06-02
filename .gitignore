@@ -1,3 +1,4 @@
+*.diff
 *~
 bin
 gen
@@ -6,4 +7,4 @@ gen
 libs
 proguard-project.txt
 project.properties
-AndroidManifest.xml
+.settings

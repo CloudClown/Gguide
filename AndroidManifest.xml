@@ -83,7 +83,7 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBQT6OLeE0PvpWJS5xEhtxbpHqZzKRdZYA" />
+            android:value="AIzaSyBUdZCDkbV-EM_nrADPRUKNC8e5HN_2ElM" />
 
         <activity
             android:screenOrientation="portrait"
