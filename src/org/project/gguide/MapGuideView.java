@@ -29,9 +29,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.Toast;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import ParseManager;
 
 @SuppressLint("NewApi")
 public class MapGuideView extends Activity implements 
@@ -233,6 +236,7 @@ public class MapGuideView extends Activity implements
         // Connect the client.
         Toast.makeText(this, "Starting Activity...", Toast.LENGTH_SHORT).show();
         mLocationClient.connect();
+        /*
         final Button deButton = (Button) findViewById(R.id.debug);
         deButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -246,6 +250,30 @@ public class MapGuideView extends Activity implements
                                    Toast.LENGTH_SHORT).show();
                 }
             });
+            */
+    }
+    
+    
+    
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.radio0:
+                if (checked)
+                	Log.d("Radio","0");
+                break;
+            case R.id.radio1:
+                if (checked)
+                	Log.d("Radio","1");
+                break;
+            case R.id.radio2:
+                if (checked)
+                	Log.d("Radio","2");
+                break;
+        }
     }
 
     @Override
