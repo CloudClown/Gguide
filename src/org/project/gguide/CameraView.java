@@ -10,13 +10,17 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
+import android.location.Address;
+import android.location.Geocoder;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 public class CameraView extends SurfaceView implements
@@ -35,6 +39,8 @@ public class CameraView extends SurfaceView implements
         //inspect the surface state
         mHolder = this.getHolder();
         mHolder.addCallback(this);
+        
+        
         Log.d("Camera:","Initialization Done!");
     }
 
@@ -72,7 +78,45 @@ public class CameraView extends SurfaceView implements
         }
         return optimalSize;
     }
+    
+    class StreetLatLongObject{
+    	public StreetLatLongObject(ArrayList<String> streets2,
+				ArrayList<Double> longitudes2, ArrayList<Double> latitudes2) {
+			streets = streets2;
+			longitudes = longitudes2;
+			latitudes = latitudes2;
+		}
+		public ArrayList<String> streets ;
+    	public ArrayList<Double> longitudes;
+    	public ArrayList<Double> latitudes;
+    };
+    
+    public StreetLatLongObject FindStreets (double long_min, double long_max, double lat_min, double lat_max) throws IOException{
+    	ArrayList<String>streets = new ArrayList<String>();
+    	ArrayList<Double> longitudes = new ArrayList<Double>();
+    	ArrayList<Double> latitudes = new ArrayList<Double>();
+    	Geocoder myLocation = new Geocoder(getContext(), Locale.ENGLISH);
+    	double diff_lat = lat_max-lat_min;
+    	double diff_long = long_max-long_min;
+    	double incremet_lat = diff_lat/3;
+    	double incremet_long = diff_long/3;
+    	for(double i = lat_min; i < lat_max; i+=incremet_lat){
+    		for(double j = long_min; j < long_max; j+=incremet_long){
+    			List<Address> myList;
+				
+				myList = myLocation.getFromLocation(i, j, 1);
 
+    			Address add = myList.get(0);
+    			String addressString = add.getAddressLine(0);
+    			streets.add(addressString);
+    			longitudes.add(i);
+    			latitudes.add(j);
+    		}
+    	}
+    	StreetLatLongObject Return_obj = new StreetLatLongObject(streets, longitudes, latitudes);
+		return Return_obj;
+
+	}
     @SuppressLint("NewApi")
     public void setCameraDisplayOrientation(Activity activity,
                                             int cameraId, android.hardware.Camera camera) {
