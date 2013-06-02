@@ -3,6 +3,8 @@ package org.project.gguide;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.json.JSONArray;
+
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.common.ConnectionResult;
@@ -209,7 +211,16 @@ public class MapGuideView extends Activity implements
             	                        	
                             // Add to global array
                             markerList.add(userMark);
-                            Messenger.sMsg.put("markers", "MarkerList");
+                            
+                            JSONArray m = new JSONArray();
+                            //0-latitude
+                            //1-longitude
+                            m.put(new Double(location.latitude));
+                            m.put(new Double(location.longitude));
+                            
+                            ArrayList<JSONArray> mr = (ArrayList<JSONArray>) Messenger.sMsg.get("markers");
+                            mr.add(m);
+                            Messenger.sMsg.put("markers", mr);
                             Toast.makeText(context, "Marker message sent", Toast.LENGTH_SHORT).show();
                             Messenger.sendMsg();
                         }
