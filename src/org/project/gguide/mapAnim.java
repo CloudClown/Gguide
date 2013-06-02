@@ -178,8 +178,7 @@ public class mapAnim {
 	
 	public void animateTo(Marker from, Marker to) {
         new GetDirection(from.getPosition(), to.getPosition()).execute();
-    	SystemClock.sleep(5000);
-    	Log.d("SIZE", ""+ routeCoords.size());
+    	SystemClock.sleep(3000);
     	Iterator<LatLng> iterator = routeCoords.iterator();
     	while (iterator.hasNext()) {
     		CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -191,7 +190,7 @@ public class mapAnim {
 			.build();
     		
     		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1000, null);
-        	SystemClock.sleep(2000);
+        	SystemClock.sleep(3000);
     	}
 	}
 	

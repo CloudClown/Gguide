@@ -1,5 +1,10 @@
 package org.project.gguide;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
@@ -32,6 +37,10 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -63,6 +72,7 @@ public class MapGuideView extends Activity implements
     public static final String PREFS_NAME = "GGuideData";
 	
     ParseManager Messenger;
+    ArrayList<Marker> markerList = new ArrayList<Marker>();
     
     //constants
     // Milliseconds per second
@@ -187,7 +197,23 @@ public class MapGuideView extends Activity implements
             	
             	//Parse for real time messaging
             	Messenger = new ParseManager(this);
-            	
+            	//Map click listener on the Map view
+                mMap.setOnMapClickListener(new OnMapClickListener() {
+                        public void onMapClick(LatLng location) {
+            	                        	
+                            // Create Marker
+                            Marker userMark = mMap.addMarker(new MarkerOptions()
+                                                             .position(location) // Mountain View
+                                                             .title("I am here!")
+                                                             .snippet("Population: Happiness"));
+            	                        	
+                            // Add to global array
+                            markerList.add(userMark);
+                            Messenger.sMsg.put("markers", "MarkerList");
+                            Toast.makeText(context, "Marker message sent", Toast.LENGTH_SHORT).show();
+                            Messenger.sendMsg();
+                        }
+                    });
             	
             }
         }
@@ -208,23 +234,26 @@ public class MapGuideView extends Activity implements
             finish();
             return true;
         } else if (item.getItemId() == R.id.tour_guide) {
-            isRotationViewEnabled = false;
-        		           	
-            Marker markStart = mMap.addMarker(new MarkerOptions()
-                                              .position(new LatLng(this.mCurrentLocation.getLatitude(), this.mCurrentLocation.getLongitude())) // Mountain View
-                                              .title("I am here!")
-                                              .snippet("Population: Happiness"));
-        		          	
+            
+        	
+        	
+        	isRotationViewEnabled = false;
+        		    
             //changeFocus(location, 0,0);
             mapAnim anim = new mapAnim(mMap);
-        		           	
-            Marker markEnd = mMap.addMarker(new MarkerOptions()
-                                            .position(new LatLng(34.0431, -118.2671)) // Staples Center
-                                            .title("I am here now!")
-                                            .snippet("Population: Happiness"));
-        		           	
-            anim = new mapAnim(mMap);
-            anim.animateTo(markStart, markEnd);
+            Iterator<Marker> iterator = markerList.iterator();
+            while (iterator.hasNext()) {
+                Marker markStart = mMap.addMarker(new MarkerOptions()
+                                                  .position(new LatLng(this.mCurrentLocation.getLatitude(), this.mCurrentLocation.getLongitude())) // Mountain View
+                                                  .title("I am here!")
+                                                  .snippet("Population: Happiness"));
+                    		
+                Marker markEnd = iterator.next();
+            	
+                anim = new mapAnim(mMap);
+                anim.animateTo(markStart, markEnd);
+            }        		           	
+            
             return true;
         }
         return false;
@@ -251,17 +280,17 @@ public class MapGuideView extends Activity implements
             });
         final ToggleButton guideButton = (ToggleButton) findViewById(R.id.toggleButton1);
         guideButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Messenger.sMsg.put("isGuide", true);
-                } else {
-                    // The toggle is disabled
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        Messenger.sMsg.put("isGuide", true);
+                    } else {
+                        // The toggle is disabled
                 	Messenger.sMsg.put("isGuide", false);
+                    }
+                    Log.d("SENDER","sMsg");
+                    Messenger.sendMsg();
                 }
-                Log.d("SENDER","sMsg");
-                Messenger.sendMsg();
-            }
-        });
+            });
     }
 
     @Override
@@ -376,7 +405,7 @@ public class MapGuideView extends Activity implements
             if (this.isRotationViewEnabled)
                 this.changeFocus(mCurrentLocation, mTilt, mAzi);
         }
-        Log.d("MapViewGuide","mTilt " + mTilt + "mAzi " + mAzi);
+        Log.d("MapViewGuide","mTilt " +  mTilt + "mAzi " + mAzi);
     }
 
 }

@@ -3,6 +3,8 @@ package org.project.gguide;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.json.JSONArray;
+
 import android.content.Context;
 import android.location.Location;
 import android.widget.Toast;
@@ -12,6 +14,7 @@ import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 public class ParseManager {
     Context mContext;
@@ -33,12 +36,13 @@ public class ParseManager {
     }
 	
     private void initMsg() {
-        sMsg = new ParseObject(senderID);
+        /*
+    	sMsg = new ParseObject(senderID);
         sMsg.put("name",me);
         sMsg.put("isGuide",false);
         //[food, hotel, park, music, fun]
         sMsg.put("specialty", Arrays.asList(0,0,0,0,0));
-        sMsg.put("markers", (new ArrayList<Marker>()));
+        sMsg.put("markers", (new JSONArray()));
         sMsg.put("isChat", true);
         sMsg.put("chatText", "");
         sMsg.put("credit", 0);
@@ -49,24 +53,50 @@ public class ParseManager {
         rMsg.put("isGuide",false);
         //[food, hotel, park, music, fun]
         rMsg.put("specialty", Arrays.asList(0,0,0,0,0));
-        rMsg.put("markers", (new ArrayList<Marker>()));
+        rMsg.put("markers", (new JSONArray()));
         rMsg.put("isChat", true);
         rMsg.put("chatText", "");
         rMsg.put("credit", 0);
         rMsg.saveInBackground();
         Toast.makeText(mContext, "msg sent", Toast.LENGTH_SHORT).show();
-		
-        rMsg.fetchInBackground(new GetCallback<ParseObject>() {
-                public void done(ParseObject object, ParseException e) {
-                    if (e == null) {
-                        // Success!
-                    	rMsg = object;
-                    	Toast.makeText(mContext, "new message received", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Failure!
-                    }
-                }
-            });
+		*/
+    	
+    	ParseQuery<ParseObject> queryMe = ParseQuery.getQuery(me);
+    	queryMe.getInBackground("c6ScOCJ06L", new GetCallback<ParseObject>() {
+    		  public void done(ParseObject object, ParseException e) {
+    			    if (e == null) {
+    			      // object will be your game score
+    			    sMsg = object;
+    			    } else {
+    			      // something went wrong
+    			    }
+    		  }
+    	});
+        
+    	ParseQuery<ParseObject> queryYou = ParseQuery.getQuery(you);
+    	queryYou.getInBackground("6Ksjt8pCHF", new GetCallback<ParseObject>() {
+  		  public void done(ParseObject object, ParseException e) {
+			    if (e == null) {
+			      // object will be your game score
+			    rMsg = object;
+			    rMsg.fetchInBackground(new GetCallback<ParseObject>() {
+	                public void done(ParseObject object, ParseException e) {
+	                    if (e == null) {
+	                        // Success!
+	                    	rMsg = object;
+	                    	Toast.makeText(mContext, "new message received", Toast.LENGTH_SHORT).show();
+	                    } else {
+	                        // Failure!
+	                    }
+	                }
+	            });
+			    } else {
+			      // something went wrong
+			    }
+		  }
+    	});
+    	
+    	
     }
 	
     public void setSenderMsg(ParseObject msg) {
