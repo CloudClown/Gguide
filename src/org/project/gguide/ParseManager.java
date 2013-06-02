@@ -57,6 +57,7 @@ public class ParseManager {
                 public void done(ParseObject object, ParseException e) {
                     if (e == null) {
                         // Success!
+                    	rMsg = object;
                     	Toast.makeText(mContext, "new message received", Toast.LENGTH_SHORT).show();
                     } else {
                         // Failure!
@@ -65,12 +66,19 @@ public class ParseManager {
             });
     }
 	
+    public void setSenderMsg(ParseObject msg) {
+    	sMsg = msg;
+    }
+    
+    public void sendMsg () {
+    	sMsg.saveInBackground();
+    }
 	
-    public ParseObject senderMsg() {
+    public ParseObject getSenderMsg() {
         return sMsg;
     }
 	
-    public ParseObject receiverMsg() {
+    public ParseObject getReceiverMsg() {
         return rMsg;
     }
 	
