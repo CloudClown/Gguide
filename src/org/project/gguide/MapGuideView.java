@@ -1,11 +1,7 @@
 package org.project.gguide;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -21,7 +17,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -37,7 +32,6 @@ import android.widget.Button;
 import android.widget.Toast;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import android.os.SystemClock;
 
 @SuppressLint("NewApi")
 public class MapGuideView extends Activity implements 
@@ -65,14 +59,8 @@ public class MapGuideView extends Activity implements
 	
     public static final String PREFS_NAME = "GGuideData";
 	
-    /*
-    //gcm
-    GoogleCloudMessaging gcm;
-    SharedPreferences prefs;
-    AtomicInteger msgId = new AtomicInteger();
-    String regid;
-    */
-	
+    ParseManager Messenger;
+    
     //constants
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -194,81 +182,14 @@ public class MapGuideView extends Activity implements
                         }
                     });
             	
-            	/*
-            	//GCM Registration
-            	regid = prefs.getString(PROPERTY_REG_ID, null);
-            	//register the sender if not already
-            	if (regid == null) {
-                //registerBackground();
-            	}
-            	gcm = GoogleCloudMessaging.getInstance(this);
-            	*/
+            	//Parse for real time messaging
+            	Messenger = new ParseManager(this);
+            	
+            	
             }
         }
     }
     
-    /*
-      private void registerBackground() {
-      Toast.makeText(context, "Starting Registering GCM...", Toast.LENGTH_SHORT).show();
-      String msg = "";
-        
-      try {
-      regid = gcm.register(GCM_SENDER_ID);
-      msg = "Device registered, registration id=" + regid;
-
-      // You should send the registration ID to your server over HTTP, 
-      // so it can use GCM/HTTP or CCS to send messages to your app.
-
-      // For this demo: we don't need to send it because the device  
-      // will send upstream messages to a server that will echo back 
-      // the message using the 'from' address in the message. 
-    
-      // Save the regid for future use - no need to register again.
-      //SharedPreferences.Editor editor = prefs.edit();
-      //editor.putString(PROPERTY_REG_ID, regid);
-      //editor.commit();
-      } catch (IOException ex) {
-      msg = "Error :" + ex.getMessage();
-      Log.d("GCM","msg");
-      }
-      Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-    	
-    	
-      new AsyncTask <Void, Integer ,String>() {
-      @Override
-      protected String doInBackground(Void... params) {
-      String msg = "";
-      try {
-      regid = gcm.register(GCM_SENDER_ID);
-      msg = "Device registered, registration id=" + regid;
-
-      // You should send the registration ID to your server over HTTP, 
-      // so it can use GCM/HTTP or CCS to send messages to your app.
-
-      // For this demo: we don't need to send it because the device  
-      // will send upstream messages to a server that will echo back 
-      // the message using the 'from' address in the message. 
-            
-      // Save the regid for future use - no need to register again.
-      SharedPreferences.Editor editor = prefs.edit();
-      editor.putString(PROPERTY_REG_ID, regid);
-      editor.commit();
-      } catch (IOException ex) {
-      msg = "Error :" + ex.getMessage();
-      }
-      return msg;
-      }
-           
-      // Once registration is done, display the registration status
-      // string in the Activity's UI.
-      @Override
-      protected void onPostExecute(String msg) {
-      Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-      }
-      }.execute(null, null, null);
-        
-      }*/
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
