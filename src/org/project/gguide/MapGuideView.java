@@ -1,6 +1,7 @@
 package org.project.gguide;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.json.JSONArray;
@@ -37,6 +38,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.RadioButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.app.AlertDialog;
@@ -46,6 +48,7 @@ import android.app.FragmentManager;
 
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParseObject;
 
 @SuppressLint("NewApi")
 public class MapGuideView extends Activity implements 
@@ -228,6 +231,43 @@ public class MapGuideView extends Activity implements
             	
             }
         }
+    }
+    
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        
+        ParseObject sMsg = Messenger.getSenderMsg();
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.radio0:
+                if (checked)
+                	sMsg.put("specialty", Arrays.asList(1,0,0,0,0));
+                	Log.d("Radio","0");
+                break;
+            case R.id.radio1:
+                if (checked)
+                	sMsg.put("specialty", Arrays.asList(0,1,0,0,0));
+                	Log.d("Radio","1");
+                break;
+            case R.id.radio2:
+                if (checked)
+                	sMsg.put("specialty", Arrays.asList(0,0,1,0,0));
+                	Log.d("Radio","2");
+                break;
+            case R.id.radio3:
+                if (checked)
+                	sMsg.put("specialty", Arrays.asList(0,0,0,1,0));
+                	Log.d("Radio","3");
+                break;
+            case R.id.radio4:
+                if (checked)
+                	sMsg.put("specialty", Arrays.asList(0,0,0,0,1));
+                	Log.d("Radio","4");
+                break;
+        }
+        Messenger.setSenderMsg(sMsg);
+        Messenger.sendMsg();
     }
     
     @Override
