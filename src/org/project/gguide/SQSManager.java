@@ -21,16 +21,13 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 
 public class SQSManager {
 
-	private AmazonSNSClient snsClient;
 	private AmazonSQSClient sqsClient;
 	private final String[]  users = new String[] {"JackieJ", "RyanC"};
-	private String topicARN;
 	private String queueURL;
 	
-	private SQSManager () {
-		Random rand = new Random();
+	public SQSManager () {
 		BasicAWSCredentials creds = new BasicAWSCredentials("AKIAI5JU3AHJTVGQODJQ", "Y7eKeWnxUlyjMhJGQRaJthEw2WNULu9W/xg+Vh0o");
-		AmazonSQSClient sqsClient = new AmazonSQSClient(creds);
+		sqsClient = new AmazonSQSClient(creds);
 		String myQueue = initializeQueue(sqsClient, users[0]);
 		String otherQueue = initializeQueue(sqsClient, users[1]);
 		
@@ -49,8 +46,9 @@ public class SQSManager {
 
 			@Override
 			protected String doInBackground(Void... params) {
+				return queueURL;
 				// TODO Auto-generated method stub
-				return null;
+				
 			}
 			
 		}.execute(null,null,null);
