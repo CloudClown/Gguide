@@ -61,6 +61,8 @@ public class MapGuideView extends Activity implements
 	private boolean isRotationViewEnabled;
 	private CameraPosition mCamPos;
 	
+	public static final String PREFS_NAME = "GGuideData";
+	
 	//gcm
 	GoogleCloudMessaging gcm;
 	SharedPreferences prefs;
@@ -145,6 +147,11 @@ public class MapGuideView extends Activity implements
                 Context.MODE_PRIVATE);
         setContentView(R.layout.activity_map_guide_view);
         this.context = this;
+        
+        
+        SharedPreferences data = getSharedPreferences(PREFS_NAME, 0);
+        String s = data.getString("string1", "string not found");
+        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
         
         camera_change_init = false;
         
@@ -407,7 +414,7 @@ public class MapGuideView extends Activity implements
 				this.changeFocus(mCurrentLocation, mTilt, mAzi);
 		}
 		
-		Log.d("MapViewGuide","mTilt " + mTilt + "mAzi " + mAzi);
+		//Log.d("MapViewGuide","mTilt " + mTilt + "mAzi " + mAzi);
 	
 		
 	}

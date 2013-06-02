@@ -16,9 +16,4 @@
    		android:title="@string/cam_to_map"
        	android:showAsAction="ifRoom"
     	android:gravity="center"/>
-    <item 
-       	android:id="@+id/find_tours"
-   		android:title="@string/find_tours"
-       	android:showAsAction="ifRoom"
-    	android:gravity="center"/>
 </menu>

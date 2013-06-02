@@ -8,7 +8,6 @@
     <string name="enter_map_view">GUIDE</string>
     <string name="cam_to_map">MAP</string>
     <string name="enter_main">HOME</string>
-    <string name="find_tours">TOURS</string>
     <string name="title_activity_cam_to_map">Gguide</string>
 	<string name="location_updates_stopped">Location Updates Stopped</string>
     

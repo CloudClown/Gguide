@@ -2,24 +2,39 @@ package org.project.gguide;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 public class GuideMain extends Activity {
 	
     private FrameLayout layout;
     private CameraView cameraView;
     private MapDrawer drawer;
+    
+    public static final String PREFS_NAME = "GGuideData";
+    
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         // Hide the window title.
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
+        // testing saving to a file
+        SharedPreferences data = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = data.edit();
+        String input = "testing saving to preferences.";
+        editor.putString("string1", input);
+        editor.commit();
+        String s = data.getString("string1", "string not found");
+        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
+        
         //add views
         layout = new FrameLayout(this);
         drawer = new MapDrawer(this);
@@ -44,10 +59,6 @@ public class GuideMain extends Activity {
 			finish();
 		} else if (item.getItemId() == R.id.enter_map) {
 			Intent intent = new Intent(this, CamToMap.class);
-			startActivity(intent);
-			finish();
-		} else if (item.getItemId() == R.id.find_tours) {
-			Intent intent = new Intent(this, TourList.class);
 			startActivity(intent);
 			finish();
 		}
