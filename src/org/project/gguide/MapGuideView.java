@@ -15,6 +15,8 @@ import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -23,6 +25,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -361,7 +364,22 @@ public class MapGuideView extends Activity implements
         meButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	isRotationViewEnabled = false;
-            	changeFocus(location, 0,0);
+            	
+            	Marker markStart = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(location.getLatitude(), location.getLongitude())) // Mountain View
+                .title("I am here!")
+                .snippet("Population: Happiness"));
+           	
+            	//changeFocus(location, 0,0);
+            	mapAnim anim = new mapAnim(mMap);
+            	
+            	Marker markEnd = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(34.0431, -118.2671)) // Staples Center
+                .title("I am here now!")
+                .snippet("Population: Happiness"));
+            	
+            	anim = new mapAnim(mMap);
+            	anim.animateTo(markStart, markEnd);
             }
         });
         
