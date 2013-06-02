@@ -8,18 +8,33 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
+import android.content.SharedPreferences;
 
 public class GuideMain extends Activity {
 	
     private FrameLayout layout;
     private CameraView cameraView;
     private MapDrawer drawer;
+    
+    public static final String PREFS_NAME = "GGuideData";
+    
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         // Hide the window title.
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
+        // testing saving to a file
+        SharedPreferences data = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = data.edit();
+        String input = "testing saving to preferences.";
+        editor.putString("string1", input);
+        editor.commit();
+        String s = data.getString("string1", "string not found");
+        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
+        
         //add views
         layout = new FrameLayout(this);
         drawer = new MapDrawer(this);
