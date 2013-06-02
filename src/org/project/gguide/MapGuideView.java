@@ -29,7 +29,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -246,6 +249,19 @@ public class MapGuideView extends Activity implements
                                    Toast.LENGTH_SHORT).show();
                 }
             });
+        final ToggleButton guideButton = (ToggleButton) findViewById(R.id.toggleButton1);
+        guideButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    Messenger.sMsg.put("isGuide", true);
+                } else {
+                    // The toggle is disabled
+                	Messenger.sMsg.put("isGuide", false);
+                }
+                Log.d("SENDER","sMsg");
+                Messenger.sendMsg();
+            }
+        });
     }
 
     @Override
