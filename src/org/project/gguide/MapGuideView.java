@@ -1,5 +1,8 @@
 package org.project.gguide;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
@@ -8,6 +11,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -20,6 +25,10 @@ import android.location.Location;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -58,6 +67,8 @@ public class MapGuideView extends Activity implements
     private boolean camera_change_init;
 	
     public static final String PREFS_NAME = "GGuideData";
+    
+    ArrayList<Marker> markerList = new ArrayList<Marker>();
 	
     ParseManager Messenger;
     
@@ -182,10 +193,24 @@ public class MapGuideView extends Activity implements
                         }
                     });
             	
+            	//Map click listener on the Map view
+            	mMap.setOnMapClickListener(new OnMapClickListener() {
+                        public void onMapClick(LatLng location) {
+                        	
+                        	// Create Marker
+                        	Marker userMark = mMap.addMarker(new MarkerOptions()
+                            .position(location) // Mountain View
+                            .title("I am here!")
+                            .snippet("Population: Happiness"));
+                        	
+                        	// Add to global array
+                        	markerList.add(userMark);
+                        }
+                    });
+
             	//Parse for real time messaging
             	Messenger = new ParseManager(this);
-            	
-            	
+
             }
         }
     }
@@ -207,21 +232,20 @@ public class MapGuideView extends Activity implements
         } else if (item.getItemId() == R.id.tour_guide) {
             isRotationViewEnabled = false;
         		           	
-            Marker markStart = mMap.addMarker(new MarkerOptions()
-                                              .position(new LatLng(this.mCurrentLocation.getLatitude(), this.mCurrentLocation.getLongitude())) // Mountain View
-                                              .title("I am here!")
-                                              .snippet("Population: Happiness"));
-        		          	
-            //changeFocus(location, 0,0);
             mapAnim anim = new mapAnim(mMap);
-        		           	
-            Marker markEnd = mMap.addMarker(new MarkerOptions()
-                                            .position(new LatLng(34.0431, -118.2671)) // Staples Center
-                                            .title("I am here now!")
-                                            .snippet("Population: Happiness"));
-        		           	
-            anim = new mapAnim(mMap);
-            anim.animateTo(markStart, markEnd);
+            Iterator<Marker> iterator = markerList.iterator();
+        	while (iterator.hasNext()) {
+        		Marker markStart = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(this.mCurrentLocation.getLatitude(), this.mCurrentLocation.getLongitude())) // Mountain View
+                .title("I am here!")
+                .snippet("Population: Happiness"));
+        		
+                Marker markEnd = iterator.next();
+	
+				anim = new mapAnim(mMap);
+				anim.animateTo(markStart, markEnd);
+        	}        		           	
+
             return true;
         }
         return false;
@@ -363,4 +387,5 @@ public class MapGuideView extends Activity implements
         Log.d("MapViewGuide","mTilt " + mTilt + "mAzi " + mAzi);
     }
 
+    
 }
