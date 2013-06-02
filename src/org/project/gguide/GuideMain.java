@@ -40,8 +40,9 @@ public class GuideMain extends Activity {
         drawer = new MapDrawer(this);
         cameraView = new CameraView(this, drawer);
         Log.d("Main","Adding Camera to the layout!");
-        layout.addView(drawer);
+        
         layout.addView(cameraView);
+        layout.addView(drawer);
         setContentView(layout);
     }
     
