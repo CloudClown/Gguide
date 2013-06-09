@@ -2,14 +2,18 @@ package org.project.gguide;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import android.content.Context;
 import android.location.Location;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -74,22 +78,39 @@ public class ParseManager {
     	});
         
     	ParseQuery<ParseObject> queryYou = ParseQuery.getQuery(you);
-    	queryYou.getInBackground("6Ksjt8pCHF", new GetCallback<ParseObject>() {
+    	queryYou.getInBackground("c6ScOCJ06L", new GetCallback<ParseObject>() {
   		  public void done(ParseObject object, ParseException e) {
-			    if (e == null) {
-			      // object will be your game score
-			    rMsg = object;
+			    
+  			  	if (e == null) {
+  			  	Toast.makeText(mContext, "new message received", Toast.LENGTH_SHORT).show();
+				
+  			  		// object will be your game score
+			    /*rMsg = object;
+			    try {
+			    	((MapGuideView) mContext).drawMarker(rMsg);
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}*/
+			    /*
 			    rMsg.fetchInBackground(new GetCallback<ParseObject>() {
 	                public void done(ParseObject object, ParseException e) {
 	                    if (e == null) {
 	                        // Success!
 	                    	rMsg = object;
 	                    	Toast.makeText(mContext, "new message received", Toast.LENGTH_SHORT).show();
+	                    	
+	                    	try {
+								((MapGuideView) mContext).drawMarker();
+							} catch (JSONException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 	                    } else {
 	                        // Failure!
 	                    }
 	                }
-	            });
+	            });*/
 			    } else {
 			      // something went wrong
 			    }

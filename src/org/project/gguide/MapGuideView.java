@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -58,7 +59,7 @@ public class MapGuideView extends Activity implements
                                                SensorEventListener {
 	
     //variables
-    private GoogleMap mMap;
+    public GoogleMap mMap;
     private Context context;
     private LocationClient mLocationClient;
     public Location mCurrentLocation;
@@ -112,6 +113,19 @@ public class MapGuideView extends Activity implements
             return (float) 90;
     	}
     	return val;
+    }
+    
+    public void drawMarker(ParseObject msg) throws JSONException {
+     	ArrayList<JSONArray> markers = (ArrayList<JSONArray>) msg.get("markers");
+    	Iterator<JSONArray> iterator = markers.iterator();
+    	while (iterator.hasNext()) {
+    		JSONArray mar = iterator.next();
+    		Marker markStart = mMap.addMarker(new MarkerOptions()
+            .position(new LatLng(mar.getDouble(0), mar.getDouble(1))) // Mountain View
+            .title("I am here!")
+            .snippet("Population: Happiness"));
+    		
+    	}
     }
     
     public void changeFocus(Location location, float tilt, float azi) {
@@ -215,17 +229,17 @@ public class MapGuideView extends Activity implements
                             // Add to global array
                             markerList.add(userMark);
                             
+                            
                             JSONArray m = new JSONArray();
                             //0-latitude
                             //1-longitude
                             m.put(new Double(location.latitude));
                             m.put(new Double(location.longitude));
-                            
-                            ArrayList<JSONArray> mr = (ArrayList<JSONArray>) Messenger.sMsg.get("markers");
-                            mr.add(m);
-                            Messenger.sMsg.put("markers", mr);
-                            Toast.makeText(context, "Marker message sent", Toast.LENGTH_SHORT).show();
-                            Messenger.sendMsg();
+                            //ArrayList<JSONArray> mr = (ArrayList<JSONArray>) Messenger.sMsg.get("markers");
+                            //mr.add(m);
+                            //Messenger.sMsg.put("markers", mr);
+                            //Toast.makeText(context, "Marker message sent", Toast.LENGTH_SHORT).show();
+                            //Messenger.sendMsg();
                         }
                     });
             	
@@ -343,6 +357,7 @@ public class MapGuideView extends Activity implements
                 }
             });
     }
+    
 
     @Override
     public void onResume() {
